@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Получение куки</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+        button {
+            margin-top: 10px;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Вставьте куки</h1>
+<textarea id="cookiesInput" placeholder='Введите куки в формате JSON'></textarea>
+<button onclick="getCookies()">Получить куки SMID и SMAUTH</button>
+<button onclick="copyResult()">Скопировать результат</button>
+
+<h2>Результат:</h2>
+<pre id="result"></pre>
+
+<script>
+    function fixJsonString(jsonString) {
+        return jsonString
+            .replace(/\s+/g, ' ')
+            .replace(/(\s*:\s*)/g, ':')
+            .replace(/(\s*,\s*)/g, ',')
+            .replace(/(,\s*})/g, '}')
+            .replace(/([,}])\s*([,{])/g, '$1$2');
+    }
+
+    function getCookies() {
+        const input = document.getElementById('cookiesInput').value.trim();
+        let cookies;
+
+        if (input === "") {
+            document.getElementById('result').textContent = 'Ошибка: ввод не должен быть пустым.';
+            return;
+        }
+
+        const fixedInput = fixJsonString(input);
+
+        try {
+            cookies = JSON.parse(fixedInput);
+        } catch (e) {
+            document.getElementById('result').textContent = 'Ошибка: некорректный формат JSON.';
+            return;
+        }
+
+        const filteredCookies = cookies.filter(cookie => 
+            cookie.name === 'SMID' || cookie.name === 'SMAUTH'
+        );
+
+        if (filteredCookies.length === 0) {
+            document.getElementById('result').textContent = 'Куки с именами SMID и SMAUTH не найдены.';
+        } else {
+            const singleLineCookies = JSON.stringify(filteredCookies)
+                .replace(/\s+/g, '')
+                .replace(/},/g, '}, ');
+
+            document.getElementById('result').textContent = singleLineCookies;
+        }
+    }
+
+    function copyResult() {
+        const result = document.getElementById('result').textContent;
+        if (result === "") {
+            alert('Нет ничего для копирования.');
+            return;
+        }
+
+        // Создаем временный элемент для копирования текста
+        const tempInput = document.createElement('textarea');
+        tempInput.value = result;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+
+        alert('Результат скопирован в буфер обмена!');
+    }
+</script>
+
+</body>
+</html>
