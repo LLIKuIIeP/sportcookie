@@ -30,6 +30,8 @@
 
 <h1>Вставьте куки</h1>
 <textarea id="cookiesInput" placeholder='Введите куки в формате JSON'></textarea>
+<h2>Введите промокод (если имеется)</h2>
+<input type="text" id="promoCodeInput" placeholder="Введите промокод">
 <button onclick="getCookies()">Получить куки SMID и SMAUTH</button>
 <button onclick="copyResult()">Скопировать результат</button>
 
@@ -48,6 +50,7 @@
 
     function getCookies() {
         const input = document.getElementById('cookiesInput').value.trim();
+        const promoCode = document.getElementById('promoCodeInput').value.trim();
         let cookies;
 
         if (input === "") {
@@ -75,7 +78,8 @@
                 .replace(/\s+/g, '')
                 .replace(/},/g, '}, ');
 
-            document.getElementById('result').textContent = singleLineCookies;
+            let output = promoCode ? `Промокод: ${promoCode} | Куки: ${singleLineCookies}` : `Куки: ${singleLineCookies}`;
+            document.getElementById('result').textContent = output;
         }
     }
 
@@ -86,7 +90,6 @@
             return;
         }
 
-        // Создаем временный элемент для копирования текста
         const tempInput = document.createElement('textarea');
         tempInput.value = result;
         document.body.appendChild(tempInput);
